@@ -23,17 +23,16 @@ split = Right . Split
 dedupe :: Ord a => [(a, b)] -> [(a, b)]
 dedupe = toList . fromList
 
--- TODO think about returning Either and giving more specifc messages
-   -- here. Will make using from other module more annoying, but oh well
 mkSplit :: [(Address, Ratio Natural)] -> Either String Split
 mkSplit [] = split []
 mkSplit [(address, _)] = split [(address, 1)]
 mkSplit ratios =
         let deduped = dedupe ratios
             total = foldl (+) 0 $ fmap snd deduped
-        in if | length deduped < length ratios -> Left "Duplicate addresses in list"
+        in if -- | True -> split deduped -- use for testing failing stuff
+              | length deduped < length ratios -> Left "Duplicate addresses in list"
               | total == 1 -> split deduped
-              | otherwise -> Left "Total not equal to 1"
+              | otherwise ->  Left "Total not equal to 1"
 
 isEmpty :: Split -> Bool
 isEmpty (Split []) = True
