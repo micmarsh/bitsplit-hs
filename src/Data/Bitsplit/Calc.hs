@@ -5,9 +5,6 @@ import Data.Ratio
 import Data.Natural
 import Data.List (partition, genericLength)
 
-updateSnd :: (b -> c) -> (a, b) -> (a, c)
-updateSnd f (first, second) = (first, f second)
-
 rmFirst :: (a -> Bool) -> [a] -> [a]
 rmFirst pred list =
         let (remove, rest) = partition pred list
