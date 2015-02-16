@@ -21,6 +21,7 @@ library
   exposed-modules:     Data.Bitsplit.Types
                      , Data.Bitsplit.Calc
                      , Data.Bitsplit.Test.Types
+                     , Data.Bitsplit.Test.Calc
   -- other-modules:
   -- other-extensions:
   build-depends:       base >=4.6 && <4.7
@@ -35,6 +36,7 @@ Test-Suite test-bitsplit
     hs-source-dirs: test
     main-is: Main.hs
     other-modules: Data.Bitsplit.Types.Test
+                 , Data.Bitsplit.Calc.Test
     build-depends: base                           >= 4.6        && < 5
                  , QuickCheck                     >= 2.6        && < 2.8
                  , containers                     == 0.5.0.0

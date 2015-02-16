@@ -1,5 +1,5 @@
 {-# LANGUAGE MultiWayIf #-}
-module Data.Bitsplit.Calc where
+module Data.Bitsplit.Calc (deleteSplit, upsertSplit, deduct) where
 import Data.Bitsplit.Types
 import Data.Ratio
 import Data.Natural
@@ -30,7 +30,7 @@ deduct amount numbers =
        in if least < 0
        then let noLeast = rmFirst (== least) subtracted
                 adjusted = deduct (- least) noLeast
-            in amount : least : adjusted
+            in amount : 0 : adjusted
        else amount : subtracted
 
 deleteSplit :: Address -> Split -> Maybe Split
