@@ -59,6 +59,13 @@ accumulateRatios times ratios = do
 
 instance Arbitrary ArbOneVec where
          arbitrary = accumulateRatios 0 []
+         shrink (ArbOneVec []) = []
+         shrink (ArbOneVec [_]) = [(ArbOneVec [])]
+         shrink (ArbOneVec [x, y]) = [(ArbOneVec [1]), (ArbOneVec [])]
+         shrink (ArbOneVec (x:y:xs)) = [(ArbOneVec ((x + y):xs)),
+                                        (ArbOneVec (xs ++ [(x + y)])),
+                                        (ArbOneVec ((x + y):(reverse xs))),
+                                        (ArbOneVec ((reverse xs) ++ [(x + y)]))]
 
 newtype ArbPreSplit = ArbPreSplit [(Address, Ratio Natural)]
 

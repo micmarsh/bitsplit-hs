@@ -1,15 +1,26 @@
 {-# LANGUAGE MultiWayIf #-}
-module Data.Bitsplit.Calc (deleteSplit, upsertSplit, deduct) where
+module Data.Bitsplit.Calc
+(deleteSplit, upsertSplit, deduct, popFirst, rmFirst) where
 import Data.Bitsplit.Types
 import Data.Ratio
 import Data.Natural
 import Data.List (partition, genericLength)
+
+first :: (a -> Bool) -> [a] -> a
+first pred = head . filter pred
 
 rmFirst :: (a -> Bool) -> [a] -> [a]
 rmFirst pred list =
         let (remove, rest) = partition pred list
         in if length remove >= 1 then (tail remove) ++ rest
         else list
+
+popFirst :: (a -> Bool) -> [a] -> (Maybe a, [a])
+popFirst pred list =
+         let filtered = rmFirst pred list
+         in if length filtered < length list
+         then ((Just $ first pred list), filtered)
+         else (Nothing, list)
 
 mkSplit' :: [(Address, Ratio Natural)] -> Maybe Split
 mkSplit' split =
@@ -25,13 +36,11 @@ deduct 1 numbers = 1 : fmap (\x -> 0) numbers
 deduct amount [number] = [amount, number - amount]
 deduct amount numbers =
        let toSub = amount / (genericLength numbers)
-           subtracted = fmap (subtract toSub) numbers
-           least = foldl min 0 subtracted
-       in if least < 0
-       then let noLeast = rmFirst (== least) subtracted
-                adjusted = deduct (- least) noLeast
-            in amount : 0 : adjusted
-       else amount : subtracted
+           (tooSmall, rest) = popFirst (< toSub) numbers
+       in case tooSmall of
+          Nothing -> amount : fmap (subtract toSub) numbers
+          (Just small) ->
+                amount : 0 : deduct (amount - small) rest
 
 deleteSplit :: Address -> Split -> Maybe Split
 deleteSplit address split =
