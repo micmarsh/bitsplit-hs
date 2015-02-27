@@ -1,6 +1,6 @@
 module Data.Bitsplit.Calc.Test where
 
-import Data.Bitsplit.Calc (deleteSplit, upsertSplit, deduct, rmFirst, popFirst)
+import Data.Bitsplit.Calc (deleteSplit, upsertSplit, deduct)
 import Data.Bitsplit.Types (unpackSplit, Address, Split)
 import Data.Natural
 import Data.Ratio
@@ -41,16 +41,5 @@ deductsAmounts :: Property
 deductsAmounts = forAll arbDeductArgs checkDeduct
                where checkDeduct (amount, numbers) =
                                  let result = deduct amount numbers
-                                     total = sum result
+                                     total = amount + sum result
                                  in 1 == total
-
-checkPopLists :: (Integer, [Integer]) -> Bool
-checkPopLists (number, list) =
-           let (removed, rest) = popFirst (< number) list
-           in case removed of
-              Nothing -> rest == list
-              (Just result) -> any (== result) list &&
-                               length list - 1 == length rest
-
-popFirstWorks :: Property
-popFirstWorks = forAll arbitrary checkPopLists

@@ -3,6 +3,7 @@ module Data.Bitsplit.Test.Types where
 import Data.Bitsplit.Types
 import Data.Natural
 import Data.Ratio
+import Data.List (genericLength)
 import Control.Applicative ((<$>))
 import Test.QuickCheck
 
@@ -53,19 +54,20 @@ accumulateRatios times ratios = do
                  let newList = new : ratios
                      total = sum newList
                  if | total == 1 -> return $ ArbOneVec newList
-                    | times >= 100 -> (return . ArbOneVec) $ (1 - (sum ratios)) : ratios
+                    | times >= 2 -> (return . ArbOneVec) $ (1 - (sum ratios)) : ratios
                     | total < 1 -> accumulateRatios (times + 1) newList
                     | otherwise -> accumulateRatios (times + 1) ratios
 
 instance Arbitrary ArbOneVec where
          arbitrary = accumulateRatios 0 []
          shrink (ArbOneVec []) = []
-         shrink (ArbOneVec [_]) = [(ArbOneVec [])]
-         shrink (ArbOneVec [x, y]) = [(ArbOneVec [1]), (ArbOneVec [])]
-         shrink (ArbOneVec (x:y:xs)) = [(ArbOneVec ((x + y):xs)),
-                                        (ArbOneVec (xs ++ [(x + y)])),
-                                        (ArbOneVec ((x + y):(reverse xs))),
-                                        (ArbOneVec ((reverse xs) ++ [(x + y)]))]
+         shrink (ArbOneVec [_]) = []
+         shrink (ArbOneVec numbers) =
+                let least = foldl min 1 numbers
+                    rest = filter (not . (== least)) numbers
+                    remaining = genericLength rest
+                in if remaining == 0 then []
+                   else [ArbOneVec  (fmap (+ least / remaining) rest)]
 
 newtype ArbPreSplit = ArbPreSplit [(Address, Ratio Natural)]
 
